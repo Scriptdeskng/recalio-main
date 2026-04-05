@@ -1,0 +1,128 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 222 20% 5%;
+    --foreground: 228 33% 96%;
+
+    --card: 224 18% 11%;
+    --card-foreground: 228 33% 96%;
+    --card-ghost1: 224 18% 18%;
+    --card-ghost2: 224 18% 22%;
+
+    --popover: 224 18% 11%;
+    --popover-foreground: 228 33% 96%;
+
+    --primary: 172 66% 50%;
+    --primary-foreground: 222 20% 5%;
+
+    --secondary: 224 18% 11%;
+    --secondary-foreground: 228 33% 96%;
+
+    --muted: 224 14% 15%;
+    --muted-foreground: 224 14% 53%;
+
+    --accent: 36 90% 55%;
+    --accent-foreground: 222 20% 5%;
+    --accent-dim: 172 66% 50%;
+
+    --destructive: 0 84% 68%;
+    --destructive-foreground: 228 33% 96%;
+
+    --success: 36 90% 55%;
+    --success-foreground: 222 20% 5%;
+
+    --border: 172 30% 20% / 0.25;
+    --input: 224 18% 15%;
+    --ring: 172 66% 50%;
+
+    --radius: 0.75rem;
+
+    --text-faint: 224 18% 33%;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+ html, body, #root {
+   height: 100dvh;
+   overflow: hidden;
+ }
+ html.allow-scroll,
+ html.allow-scroll body,
+ html.allow-scroll #root {
+   height: auto !important;
+   overflow: visible !important;
+ }
+ html.allow-scroll {
+   scroll-behavior: smooth;
+   overflow-x: hidden !important;
+ }
+ body {
+   @apply bg-background text-foreground font-body antialiased;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Sora', sans-serif;
+  }
+}
+
+@layer utilities {
+  .gradient-amber {
+    background: linear-gradient(135deg, hsl(36, 90%, 55%), hsl(28, 95%, 50%));
+  }
+
+  .gradient-teal {
+    background: linear-gradient(135deg, hsl(172, 66%, 50%), hsl(180, 60%, 45%));
+  }
+
+  .gradient-amber-text {
+    background: linear-gradient(135deg, hsl(36, 90%, 55%), hsl(28, 95%, 50%));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .gradient-teal-text {
+    background: linear-gradient(135deg, hsl(172, 66%, 50%), hsl(180, 60%, 45%));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .text-shadow-glow {
+    text-shadow: 0 0 20px hsla(172, 66%, 50%, 0.3);
+  }
+
+  .quiz-answer-btn {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    outline: none;
+  }
+
+  .quiz-answer-btn:focus:not(:focus-visible) {
+    outline: none;
+    box-shadow: none;
+  }
+
+  .quiz-answer-btn:focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+  }
+}

@@ -1,0 +1,87 @@
+# Dependencies
+node_modules/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+logs/
+nginx/logs/*.log
+
+# Testing
+.coverage
+htmlcov/
+.pytest_cache/
+.vitest/
+coverage/
+*.cover
+.hypothesis/
+
+# Next.js
+.next/
+out/
+.vercel
+
+# Build outputs
+dist/
+build/
+
+# Database
+*.sqlite
+*.db
+
+# Backups
+backups/*.sql
+!backups/README.md
+
+# Docker
+*.pid
+.docker/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# OS
+Thumbs.db
+.DS_Store
+
+# SSL certificates (keep README)
+nginx/ssl/*.pem
+nginx/ssl/*.crt
+nginx/ssl/*.key
+!nginx/ssl/README.md
