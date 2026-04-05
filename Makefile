@@ -174,26 +174,26 @@ db-restore: ## Restore database from file (use FILE=backup.sql)
 # ====================
 
 prod-build: ## Build production images
-	docker-compose -f docker-compose.prod.yml build
+	docker compose -f docker-compose.prod.yml build
 
 prod-up: ## Start production environment
-	docker-compose -f docker-compose.prod.yml up -d
+	docker compose -f docker-compose.prod.yml up -d
 
 prod-down: ## Stop production environment
-	docker-compose -f docker-compose.prod.yml down
+	docker compose -f docker-compose.prod.yml down
 
 prod-restart: ## Restart production environment
-	docker-compose -f docker-compose.prod.yml restart
+	docker compose -f docker-compose.prod.yml restart
 
 prod-logs: ## Show production logs
-	docker-compose -f docker-compose.prod.yml logs -f
+	docker compose -f docker-compose.prod.yml logs -f
 
 prod-scale-api: ## Scale API service (use N=3 for 3 instances)
 	@if [ -z "$(N)" ]; then \
 		echo "Error: Please provide N=number"; \
 		exit 1; \
 	fi
-	docker-compose -f docker-compose.prod.yml up -d --scale api=$(N)
+	docker compose -f docker-compose.prod.yml up -d --scale api=$(N)
 
 # ====================
 # Cleanup Commands
