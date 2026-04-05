@@ -18,7 +18,7 @@ async def create_challenge(db: AsyncSession, payload: CreateChallengeRequest) ->
     challenge = Challenge(
         id=new_public_id("challenge"),
         public_id=new_public_id("public"),
-        attempt_id=payload.attempt_id or new_id(),
+        attempt_id=payload.attempt_id,
         topic=_topic_label(payload.input),
         difficulty=payload.difficulty,
         question_count=payload.count,

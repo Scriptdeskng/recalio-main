@@ -108,6 +108,7 @@ const IndexPage = () => {
 
   const doCreateChallenge = useCallback(async (creatorName: string) => {
     try {
+      console.log("Creating challenge with:", { lastAttemptId, creatorName });
       const response = await createChallenge({
         attempt_id: lastAttemptId,
         creator_name: creatorName,
@@ -118,6 +119,7 @@ const IndexPage = () => {
         answers: quiz.results.map((r) => r.selectedAnswer),
         duration_seconds: timerRef.current,
       });
+      console.log("Challenge created:", response);
       storage.addMyChallenge(response.challenge_id);
       setChallengeId(response.challenge_id);
       quiz.setScreen("challenge-created");
@@ -128,11 +130,15 @@ const IndexPage = () => {
   }, [lastAttemptId, quiz.config, quiz.questions, quiz.results]);
 
   const handleChallenge = useCallback(async () => {
+    console.log("Challenge button clicked");
     const storedName = storage.getPlayerName();
+    console.log("Stored name:", storedName);
     if (!storedName) {
+      console.log("No name found, showing modal");
       setShowNameModal(true);
       return;
     }
+    console.log("Calling doCreateChallenge");
     await doCreateChallenge(storedName);
   }, [doCreateChallenge]);
 
@@ -147,26 +153,39 @@ const IndexPage = () => {
 
   const topicLabel = quiz.config.input.length > 40 ? quiz.config.input.slice(0, 37) + "…" : quiz.config.input;
 
-  switch (quiz.screen) {
-    case "setup":
-      return <SetupScreen config={quiz.config} setConfig={quiz.setConfig} onGenerate={handleGenerate} onNavigate={handleNavigate} historyCount={quizHistory.totalQuizzes} challengeCount={challengeCount} recentTopics={quizHistory.recentTopics} />;
-    case "loading":
-      return <LoadingScreen isReady={loadingReady} />;
-    case "quiz":
-      return <QuizScreen questions={quiz.questions} currentIndex={quiz.currentIndex} results={quiz.results} xp={quiz.xp} topic={topicLabel} onAnswer={quiz.answerQuestion} onNext={quiz.nextQuestion} onExit={quiz.resetToSetup} />;
-    case "complete":
-      return <CompletionScreen results={quiz.results} totalQuestions={quiz.questions.length} xp={quiz.xp} timeTaken={timerRef.current} onRetry={quiz.retryQuiz} onNewTopic={quiz.resetToSetup} onChallenge={handleChallenge} />;
-    case "challenge-created":
-      return challengeId ? <ChallengeCreatedScreen challengeId={challengeId} topic={topicLabel} score={Math.round((quiz.results.filter((r) => r.isCorrect).length / quiz.questions.length) * 100)} onHome={quiz.resetToSetup} /> : null;
-    case "history":
-      return <HistoryScreen history={quizHistory.history} onBack={() => quiz.setScreen("setup")} onClear={quizHistory.clearHistory} />;
-    case "my-challenges":
-      return <MyChallengesScreen onBack={() => quiz.setScreen("setup")} />;
-    case "profile":
-      return <ProfileScreen onBack={() => quiz.setScreen("setup")} totalXp={quizHistory.totalXp} totalQuizzes={quizHistory.totalQuizzes} averageScore={quizHistory.averageScore} />;
-    default:
-      return null;
-  }
+  return (
+    <>
+      {showNameModal && (
+        <NameModal
+          onSubmit={handleNameSubmit}
+          onCancel={() => setShowNameModal(false)}
+        />
+      )}
+      
+      {(() => {
+        switch (quiz.screen) {
+          case "setup":
+            return <SetupScreen config={quiz.config} setConfig={quiz.setConfig} onGenerate={handleGenerate} onNavigate={handleNavigate} historyCount={quizHistory.totalQuizzes} challengeCount={challengeCount} recentTopics={quizHistory.recentTopics} />;
+          case "loading":
+            return <LoadingScreen isReady={loadingReady} />;
+          case "quiz":
+            return <QuizScreen questions={quiz.questions} currentIndex={quiz.currentIndex} results={quiz.results} xp={quiz.xp} topic={topicLabel} onAnswer={quiz.answerQuestion} onNext={quiz.nextQuestion} onExit={quiz.resetToSetup} />;
+          case "complete":
+            return <CompletionScreen results={quiz.results} totalQuestions={quiz.questions.length} xp={quiz.xp} timeTaken={timerRef.current} onRetry={quiz.retryQuiz} onNewTopic={quiz.resetToSetup} onChallenge={handleChallenge} />;
+          case "challenge-created":
+            return challengeId ? <ChallengeCreatedScreen challengeId={challengeId} topic={topicLabel} score={Math.round((quiz.results.filter((r) => r.isCorrect).length / quiz.questions.length) * 100)} onHome={quiz.resetToSetup} /> : null;
+          case "history":
+            return <HistoryScreen history={quizHistory.history} onBack={() => quiz.setScreen("setup")} onClear={quizHistory.clearHistory} />;
+          case "my-challenges":
+            return <MyChallengesScreen onBack={() => quiz.setScreen("setup")} />;
+          case "profile":
+            return <ProfileScreen onBack={() => quiz.setScreen("setup")} totalXp={quizHistory.totalXp} totalQuizzes={quizHistory.totalQuizzes} averageScore={quizHistory.averageScore} />;
+          default:
+            return null;
+        }
+      })()}
+    </>
+  );
 };
 
 export default IndexPage;

@@ -100,7 +100,10 @@ export default function CompletionScreen({ results, totalQuestions, xp, timeTake
       {onChallenge && (
         <motion.button
           whileTap={{ scale: 0.97 }}
-          onClick={onChallenge}
+          onClick={() => {
+            console.log("Challenge button clicked in CompletionScreen");
+            onChallenge();
+          }}
           className="w-full py-4 rounded-2xl border border-primary/30 text-foreground font-display font-700 text-base hover:bg-card transition-colors mb-3"
         >
           🏆 Challenge a Friend
