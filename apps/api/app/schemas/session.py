@@ -10,6 +10,7 @@ class CompleteSessionRequest(BaseModel):
     answers: list[int] = Field(..., description="Selected answer indices")
     duration_seconds: int = Field(..., ge=0, description="Time taken in seconds")
     player_name: str | None = Field(None, max_length=120)
+    player_msisdn: str | None = Field(None, max_length=20, description="Player phone number if authenticated")
     questions: list[QuizQuestion]
 
 class CompleteSessionResponse(BaseModel):

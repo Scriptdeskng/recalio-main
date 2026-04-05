@@ -15,6 +15,7 @@ class Challenge(Base):
     id: Mapped[str] = mapped_column(String, primary_key=True)
     public_id: Mapped[str] = mapped_column(String(40), unique=True, index=True)
     attempt_id: Mapped[str | None] = mapped_column(ForeignKey("quiz_attempts.id", ondelete="CASCADE"), nullable=True)
+    player_id: Mapped[int | None] = mapped_column(Integer, ForeignKey("players.id", ondelete="SET NULL"), nullable=True, index=True)
     topic: Mapped[str] = mapped_column(String(255), nullable=False)
     difficulty: Mapped[str] = mapped_column(String(20), nullable=False)
     question_count: Mapped[int] = mapped_column(Integer, nullable=False)

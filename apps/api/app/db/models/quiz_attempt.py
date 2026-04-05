@@ -1,5 +1,5 @@
 from datetime import datetime, timezone
-from sqlalchemy import String, Integer, DateTime, Text
+from sqlalchemy import String, Integer, DateTime, Text, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column
 from app.db.base import Base
 
@@ -10,6 +10,7 @@ class QuizAttempt(Base):
     __tablename__ = "quiz_attempts"
 
     id: Mapped[str] = mapped_column(String, primary_key=True)
+    player_id: Mapped[int | None] = mapped_column(Integer, ForeignKey("players.id", ondelete="SET NULL"), nullable=True, index=True)
     player_name: Mapped[str | None] = mapped_column(String(120), nullable=True)
     input_text: Mapped[str] = mapped_column(Text, nullable=False)
     input_mode: Mapped[str] = mapped_column(String(20), nullable=False)

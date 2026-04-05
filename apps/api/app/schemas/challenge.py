@@ -6,6 +6,7 @@ from app.schemas.quiz import QuizQuestion
 class CreateChallengeRequest(BaseModel):
     attempt_id: str | None = None
     creator_name: str = Field(..., min_length=1, max_length=120)
+    player_msisdn: str | None = Field(None, max_length=20, description="Player phone number if authenticated")
     input: str = Field(..., min_length=1, max_length=10000)
     difficulty: Literal["beginner", "intermediate", "advanced"]
     count: int = Field(..., ge=1, le=20)

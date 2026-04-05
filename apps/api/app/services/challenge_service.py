@@ -1,6 +1,7 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.models.challenge import Challenge
+from app.db.models.player import Player
 from app.schemas.challenge import CreateChallengeRequest, ChallengeResponse, CreateChallengeResponse, CompleteChallengeRequest, RematchRequest
 from app.services.scoring import score_answers
 from app.utils.ids import new_id, new_public_id
@@ -15,10 +16,20 @@ def _topic_label(input_text: str) -> str:
 async def create_challenge(db: AsyncSession, payload: CreateChallengeRequest) -> CreateChallengeResponse:
     correct_indexes = [q.correct for q in payload.questions]
     correct_answers, percentage, _ = score_answers(payload.answers, correct_indexes)
+    
+    # Get player_id if player_msisdn is provided
+    player_id = None
+    if payload.player_msisdn:
+        result = await db.execute(select(Player).where(Player.msisdn == payload.player_msisdn))
+        player = result.scalar_one_or_none()
+        if player:
+            player_id = player.id
+    
     challenge = Challenge(
         id=new_public_id("challenge"),
         public_id=new_public_id("public"),
         attempt_id=payload.attempt_id,
+        player_id=player_id,
         topic=_topic_label(payload.input),
         difficulty=payload.difficulty,
         question_count=payload.count,
