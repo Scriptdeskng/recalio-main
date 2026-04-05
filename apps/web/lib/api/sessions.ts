@@ -9,6 +9,7 @@ export interface CompleteSessionPayload {
   answers: number[];
   duration_seconds: number;
   player_name?: string;
+  player_msisdn?: string;
   questions: QuizQuestion[];
 }
 

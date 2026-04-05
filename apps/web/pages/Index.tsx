@@ -11,11 +11,19 @@ import MyChallengesScreen from "@/components/MyChallengesScreen";
 import ProfileScreen from "@/components/ProfileScreen";
 import ChallengeCreatedScreen from "@/components/challenge/ChallengeCreatedScreen";
 import NameModal from "@/components/challenge/NameModal";
+import SubscriptionRequiredModal from "@/components/SubscriptionRequiredModal";
 import { toast } from "sonner";
 import { useEffect, useRef, useState, useCallback } from "react";
 import type { ScreenState } from "@/lib/types";
 import { createChallenge, generateQuiz, completeSession } from "@/lib/api";
 import { storage } from "@/lib/storage";
+import { 
+  isPlayerAuthenticated, 
+  checkSubscriptionStatus, 
+  hasActiveSubscription,
+  getPlayerAuth 
+} from "@/lib/player-auth";
+import type { ClientAction } from "@/lib/api/auth";
 
 const IndexPage = () => {
   const quiz = useQuizState();
@@ -23,6 +31,8 @@ const IndexPage = () => {
   const savedRef = useRef(false);
   const [loadingReady, setLoadingReady] = useState(false);
   const [showNameModal, setShowNameModal] = useState(false);
+  const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
+  const [subscriptionAction, setSubscriptionAction] = useState<ClientAction | undefined>();
   const [challengeId, setChallengeId] = useState<string | null>(null);
   const [challengeCount, setChallengeCount] = useState(0);
   const [lastAttemptId, setLastAttemptId] = useState<string | null>(null);
@@ -65,6 +75,9 @@ const IndexPage = () => {
         percentage: Math.round((correct / quiz.questions.length) * 100),
       });
 
+      // Get player info if authenticated
+      const playerAuth = getPlayerAuth();
+      
       completeSession({
         input: quiz.config.input,
         mode: quiz.config.input.trim().length > 100 ? "notes" : "topic",
@@ -73,6 +86,7 @@ const IndexPage = () => {
         answers: quiz.results.map((r) => r.selectedAnswer),
         duration_seconds: timerRef.current,
         player_name: storage.getPlayerName() || undefined,
+        player_msisdn: playerAuth?.msisdn || undefined,
         questions: quiz.questions,
       }).then((res) => {
         setLastAttemptId(res.attempt_id);
@@ -85,6 +99,24 @@ const IndexPage = () => {
   }, [quiz.screen]);
 
   const handleGenerate = async () => {
+    // Check if player is authenticated and has active subscription
+    if (isPlayerAuthenticated()) {
+      try {
+        const subscriptionStatus = await checkSubscriptionStatus();
+        
+        if (!subscriptionStatus || !subscriptionStatus.data.has_active_subscription) {
+          // Show subscription required modal
+          setSubscriptionAction(subscriptionStatus?.data.client_action);
+          setShowSubscriptionModal(true);
+          return;
+        }
+      } catch (error) {
+        console.error("Failed to check subscription:", error);
+        toast.error("Failed to verify subscription. Please try again.");
+        return;
+      }
+    }
+    
     quiz.setScreen("loading");
     setLoadingReady(false);
     try {
@@ -109,9 +141,14 @@ const IndexPage = () => {
   const doCreateChallenge = useCallback(async (creatorName: string) => {
     try {
       console.log("Creating challenge with:", { lastAttemptId, creatorName });
+      
+      // Get player info if authenticated
+      const playerAuth = getPlayerAuth();
+      
       const response = await createChallenge({
         attempt_id: lastAttemptId,
         creator_name: creatorName,
+        player_msisdn: playerAuth?.msisdn || undefined,
         input: quiz.config.input,
         difficulty: quiz.config.difficulty,
         count: quiz.questions.length,
@@ -161,6 +198,12 @@ const IndexPage = () => {
           onCancel={() => setShowNameModal(false)}
         />
       )}
+      
+      <SubscriptionRequiredModal
+        open={showSubscriptionModal}
+        onClose={() => setShowSubscriptionModal(false)}
+        clientAction={subscriptionAction}
+      />
       
       {(() => {
         switch (quiz.screen) {

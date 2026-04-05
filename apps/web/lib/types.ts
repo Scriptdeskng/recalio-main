@@ -50,4 +50,4 @@ export interface Challenge {
   expires_at: string;
 }
 
-export type ChallengePageState = "loading" | "landing" | "name-entry" | "quiz" | "result" | "expired" | "taken" | "own-link" | "not-found";
+export type ChallengePageState = "loading" | "landing" | "name-entry" | "quiz" | "result" | "expired" | "taken" | "own-link" | "not-found" | "error";

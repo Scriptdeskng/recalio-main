@@ -4,6 +4,7 @@ import type { Challenge, Difficulty, QuizQuestion } from "@/lib/types";
 export interface CreateChallengePayload {
   attempt_id: string | null;
   creator_name: string;
+  player_msisdn?: string;
   input: string;
   difficulty: Difficulty;
   count: number;

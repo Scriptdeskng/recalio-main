@@ -4,6 +4,9 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowLeft, Pencil, Check } from "lucide-react";
 import { storage } from "@/lib/storage";
+import { getPlayerAuth } from "@/lib/player-auth";
+import { authAPI } from "@/lib/api/auth";
+import { useToast } from "@/hooks/use-toast";
 
 interface ProfileScreenProps {
   onBack: () => void;
@@ -15,10 +18,32 @@ interface ProfileScreenProps {
 export default function ProfileScreen({ onBack, totalXp, totalQuizzes, averageScore }: ProfileScreenProps) {
   const [name, setName] = useState(() => storage.getPlayerName() || "");
   const [editingName, setEditingName] = useState(false);
+  const { toast } = useToast();
 
-  const saveName = () => {
+  const saveName = async () => {
     const trimmed = name.trim();
-    if (trimmed) storage.setPlayerName(trimmed);
+    if (trimmed) {
+      storage.setPlayerName(trimmed);
+      
+      // Update backend if user is authenticated
+      const playerAuth = getPlayerAuth();
+      if (playerAuth) {
+        try {
+          await authAPI.updatePlayer(playerAuth.msisdn, { full_name: trimmed });
+          toast({
+            title: "Success",
+            description: "Profile updated successfully",
+          });
+        } catch (error) {
+          console.error("Failed to update profile:", error);
+          toast({
+            title: "Warning",
+            description: "Name saved locally, but server update failed",
+            variant: "destructive",
+          });
+        }
+      }
+    }
     setEditingName(false);
   };
 

@@ -1,9 +1,13 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
 import HeroDemo from "./HeroDemo";
+import AuthModal from "@/components/AuthModal";
 
 export default function HeroSection() {
+  const [showAuthModal, setShowAuthModal] = useState(false);
+
   return (
     <section className="relative pt-24 pb-4 md:pt-28 md:pb-14 px-5 overflow-hidden">
       <div className="absolute top-[-100px] left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-[#2BD4BD]/[0.04] rounded-full blur-[120px] pointer-events-none" />
@@ -37,12 +41,12 @@ export default function HeroSection() {
             </p>
 
             <div className="flex flex-wrap justify-center md:justify-start gap-2.5">
-              <a
-                href="/main-app"
+              <button
+                onClick={() => setShowAuthModal(true)}
                 className="inline-flex items-center font-display font-semibold text-[12px] md:text-[13px] px-5 py-2.5 md:px-6 md:py-3 rounded-full bg-[#2BD4BD] text-[#0b0d12] hover:bg-[#24BFA8] transition-colors shadow-[0_4px_20px_-4px_rgba(43,212,189,0.3)]"
               >
-                Subscribe now →
-              </a>
+                Sign In to play →
+              </button>
               <a
                 href="#how-it-works"
                 className="inline-flex items-center font-display font-semibold text-[12px] md:text-[13px] px-5 py-2.5 md:px-6 md:py-3 rounded-full border border-white/[0.08] text-white/60 hover:text-white/90 hover:border-white/[0.15] transition-all"
@@ -62,6 +66,8 @@ export default function HeroSection() {
           </motion.div>
         </motion.div>
       </div>
+
+      <AuthModal open={showAuthModal} onClose={() => setShowAuthModal(false)} />
     </section>
   );
 }

@@ -141,6 +141,7 @@ export default function ChallengePage() {
   if (state === "not-found") return <SimpleState emoji="🤷" title="Challenge Not Found" description="This challenge doesn't exist or the link is invalid." action="Start Your Own Quiz" onClick={() => router.push("/")} />;
   if (state === "expired") return <SimpleState emoji="⏰" title="Challenge Expired" description="This challenge has expired. Start your own!" action="Start Your Own Quiz" onClick={() => router.push("/")} />;
   if (state === "taken") return <SimpleState emoji="🔒" title="Challenge Already Taken" description="Someone already completed this challenge. Start your own!" action="Start Your Own Quiz" onClick={() => router.push("/")} />;
+  if (state === "error") return <SimpleState emoji="❌" title="Submission Failed" description="Failed to submit your challenge results. Please try again." action="Back to Home" onClick={() => router.push("/")} />;
   if (state === "own-link") return <OwnLinkState onHome={() => router.push("/")} />;
   if (state === "landing" && challenge) return <div className="min-h-screen bg-background"><ChallengeLanding challenge={challenge} onAccept={handleAccept} /></div>;
   if (state === "name-entry") return <div className="min-h-screen bg-background"><NameModal title="Enter your name" onSubmit={handleNameSubmit} onCancel={() => setState("landing")} /></div>;
