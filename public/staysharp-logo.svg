@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 200">
+<style>
+.text { font-family: Arial, Helvetica, sans-serif; font-weight: 700; font-style: italic; font-size: 80px; fill: #EDEFF2; }
+.accent { fill: #2EC4B6; }
+</style>
+<text x="50" y="120" class="text">StayShar</text>
+<text x="600" y="120" class="text accent">p</text>
+</svg>
