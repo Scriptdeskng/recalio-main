@@ -68,20 +68,69 @@ async def verify_otp(request: VerifyOTPRequest, db: AsyncSession = Depends(get_d
 @router.get("/subscription-status", response_model=SubscriptionStatusResponse)
 async def check_subscription_status(msisdn: str, db: AsyncSession = Depends(get_db)):
     """
-    Check subscription status for a phone number
+    Check subscription status for a phone number.
+    
+    This checks BOTH:
+    1. Database subscriptions (Paystack card payments)
+    2. IntelliHQ subscriptions (airtime payments)
+    
+    Returns active status if either source has an active subscription.
     """
     try:
-        # Get subscription status from IntelliHQ
+        # First, check for subscriptions in our database (Paystack)
+        from app.services.subscription_service import SubscriptionService
+        from app.schemas.auth import ActiveSubscription, SubscriptionStatusData, ClientAction
+        from app.db.models.subscription import SubscriptionStatus
+        
+        player = await PlayerRepository.get_by_msisdn(db, msisdn)
+        db_subscription = None
+        has_db_subscription = False
+        
+        if player:
+            db_subscription = await SubscriptionService.get_active_subscription(db, player.id)
+            
+            if db_subscription and db_subscription.status in [SubscriptionStatus.ACTIVE, SubscriptionStatus.GRACE]:
+                has_db_subscription = True
+                logger.info(f"Found active subscription in database for {msisdn}: {db_subscription.id}")
+                
+                # Return database subscription as active
+                return SubscriptionStatusResponse(
+                    success=True,
+                    data=SubscriptionStatusData(
+                        service_id=1,  # Our service ID
+                        msisdn=msisdn,
+                        has_any_subscription=True,
+                        has_active_subscription=True,
+                        active_subscription=ActiveSubscription(
+                            subscription_id=db_subscription.id,
+                            sub_status=db_subscription.status.value,
+                            sub_active=True,
+                            telco=player.telco,
+                            traffic_source="web_card_payment",
+                            active_product_id=db_subscription.plan_id,
+                            auto_renewal=db_subscription.auto_renew,
+                            starts_date=db_subscription.starts_at.isoformat(),
+                            ends_date=db_subscription.ends_at.isoformat()
+                        ),
+                        billing_records=[],
+                        client_action=None
+                    )
+                )
+        
+        # If no database subscription, check IntelliHQ (airtime subscriptions)
+        logger.info(f"No active database subscription for {msisdn}, checking IntelliHQ...")
         result = await AuthService.check_subscription_status(msisdn)
         
         # Update player subscription status in database
-        await PlayerRepository.update_subscription_status(
-            db=db,
-            msisdn=msisdn,
-            subscription_data=result.data.model_dump()
-        )
+        if player:
+            await PlayerRepository.update_subscription_status(
+                db=db,
+                msisdn=msisdn,
+                subscription_data=result.data.model_dump()
+            )
         
         return result
+        
     except httpx.HTTPStatusError as e:
         logger.error(f"HTTP error in check_subscription_status: {e.response.status_code} - {e.response.text}")
         raise HTTPException(
@@ -96,8 +145,6 @@ async def check_subscription_status(msisdn: str, db: AsyncSession = Depends(get_
         )
     except Exception as e:
         logger.error(f"Unexpected error in check_subscription_status: {str(e)}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Failed to check subscription status: {str(e)}")
-    except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to check subscription status: {str(e)}")
 
 @router.get("/player/{msisdn}", response_model=PlayerResponse)

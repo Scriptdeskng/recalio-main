@@ -99,22 +99,28 @@ const IndexPage = () => {
   }, [quiz.screen]);
 
   const handleGenerate = async () => {
-    // Check if player is authenticated and has active subscription
-    if (isPlayerAuthenticated()) {
-      try {
-        const subscriptionStatus = await checkSubscriptionStatus();
-        
-        if (!subscriptionStatus || !subscriptionStatus.data.has_active_subscription) {
-          // Show subscription required modal
-          setSubscriptionAction(subscriptionStatus?.data.client_action);
-          setShowSubscriptionModal(true);
-          return;
-        }
-      } catch (error) {
-        console.error("Failed to check subscription:", error);
-        toast.error("Failed to verify subscription. Please try again.");
+    // Always require authentication and active subscription
+    if (!isPlayerAuthenticated()) {
+      // User not authenticated - redirect to subscription page
+      window.location.href = "/subscribe";
+      return;
+    }
+    
+    // Check subscription status (checks both Paystack and IntelliHQ subscriptions)
+    try {
+      const subscriptionStatus = await checkSubscriptionStatus();
+      
+      if (!subscriptionStatus || !subscriptionStatus.data.has_active_subscription) {
+        // No active subscription - show subscription required modal
+        const playerAuth = getPlayerAuth();
+        setSubscriptionAction(subscriptionStatus?.data.client_action);
+        setShowSubscriptionModal(true);
         return;
       }
+    } catch (error) {
+      console.error("Failed to check subscription:", error);
+      toast.error("Failed to verify subscription. Please try again.");
+      return;
     }
     
     quiz.setScreen("loading");
@@ -203,6 +209,7 @@ const IndexPage = () => {
         open={showSubscriptionModal}
         onClose={() => setShowSubscriptionModal(false)}
         clientAction={subscriptionAction}
+        msisdn={getPlayerAuth()?.msisdn}
       />
       
       {(() => {

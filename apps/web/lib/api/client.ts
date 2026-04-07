@@ -1,21 +1,43 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(`${API_BASE_URL}${path}`, {
-    ...init,
-    headers: {
-      "Content-Type": "application/json",
-      ...(init?.headers || {}),
-    },
-    cache: "no-store",
-  });
+  try {
+    const url = `${API_BASE_URL}${path}`;
+    console.log(`API Request: ${init?.method || 'GET'} ${url}`);
+    
+    const res = await fetch(url, {
+      ...init,
+      headers: {
+        "Content-Type": "application/json",
+        ...(init?.headers || {}),
+      },
+      cache: "no-store",
+    });
 
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(text || `Request failed: ${res.status}`);
+    console.log(`API Response: ${res.status} ${res.statusText}`);
+
+    if (!res.ok) {
+      const text = await res.text();
+      console.error(`API Error Response:`, text);
+      
+      // Try to parse as JSON for better error message
+      try {
+        const errorData = JSON.parse(text);
+        const message = errorData.detail || errorData.message || text;
+        throw new Error(message);
+      } catch (parseError) {
+        // If not JSON, use raw text
+        throw new Error(text || `Request failed: ${res.status} ${res.statusText}`);
+      }
+    }
+
+    const data = await res.json();
+    console.log(`API Response Data:`, data);
+    return data;
+  } catch (error) {
+    console.error(`API Request failed:`, error);
+    throw error;
   }
-
-  return res.json();
 }
 
 export const apiClient = {

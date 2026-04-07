@@ -26,15 +26,15 @@ export default function CTASection() {
           <span className="text-[#2BD4BD]">StaySharp</span>?
         </h2>
         <p className="text-[#5a6478] text-[12px] md:text-[14px] mb-5 leading-relaxed">
-          Available on MTN Nigeria. Subscribe from your airtime and start
+          Available on MTN Nigeria. Start from your airtime and begin
           quizzing in seconds. Cancel anytime.
         </p>
 
         <a
-          href="/main-app"
+          href="/subscribe"
           className="inline-flex items-center justify-center w-full sm:w-auto font-display font-bold text-[12px] md:text-[14px] px-8 py-3 rounded-full bg-[#2BD4BD] text-[#0b0d12] hover:bg-[#24BFA8] transition-all shadow-[0_4px_24px_-4px_rgba(43,212,189,0.3)]"
         >
-          Subscribe now →
+          Get started →
         </a>
       </motion.div>
     </section>

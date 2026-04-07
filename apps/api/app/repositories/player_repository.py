@@ -2,18 +2,51 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from app.db.models.player import Player
 from app.schemas.auth import VerifyOTPData
+from app.utils.phone import normalize_msisdn
 from datetime import datetime, timezone
 
 class PlayerRepository:
     """Repository for player data access"""
     
     @staticmethod
-    async def get_by_msisdn(db: AsyncSession, msisdn: str) -> Player | None:
-        """Get player by phone number"""
+    async def get_by_id(db: AsyncSession, player_id: int) -> Player | None:
+        """Get player by ID"""
         result = await db.execute(
-            select(Player).where(Player.msisdn == msisdn)
+            select(Player).where(Player.id == player_id)
         )
         return result.scalar_one_or_none()
+    
+    @staticmethod
+    async def get_by_msisdn(db: AsyncSession, msisdn: str) -> Player | None:
+        """Get player by phone number"""
+        normalized_msisdn = normalize_msisdn(msisdn)
+        result = await db.execute(
+            select(Player).where(Player.msisdn == normalized_msisdn)
+        )
+        return result.scalar_one_or_none()
+    
+    @staticmethod
+    async def get_or_create_by_msisdn(
+        db: AsyncSession,
+        msisdn: str,
+        telco: str
+    ) -> Player:
+        """Get player or create if doesn't exist"""
+        normalized_msisdn = normalize_msisdn(msisdn)
+        player = await PlayerRepository.get_by_msisdn(db, normalized_msisdn)
+        
+        if not player:
+            player = Player(
+                msisdn=normalized_msisdn,
+                telco=telco,
+                has_any_subscription=False,
+                has_active_subscription=False
+            )
+            db.add(player)
+            await db.commit()
+            await db.refresh(player)
+        
+        return player
     
     @staticmethod
     async def create_or_update_from_auth(
@@ -99,10 +132,6 @@ class PlayerRepository:
             player.full_name = full_name
         
         player.updated_at = datetime.now(timezone.utc)
-        
-        await db.commit()
-        await db.refresh(player)
-        return player
         
         await db.commit()
         await db.refresh(player)

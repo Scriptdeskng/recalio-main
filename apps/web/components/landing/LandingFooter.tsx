@@ -12,10 +12,12 @@ export default function LandingFooter() {
         <p className="text-[10px] text-[#3a4255]">
           Study smarter. Remember more.
         </p>
-
-        <p className="text-[9px] text-[#252a33]">
-          © 2026 StaySharp. All rights reserved.
-        </p>
+        <div className="flex items-center gap-3 text-[9px] text-[#252a33]">
+          <span>© 2026 StaySharp. All rights reserved.</span>
+          <a href="/signin" className="text-[#3a4255] hover:text-[#5a6478] transition-colors">
+            Sign in
+          </a>
+        </div>
       </div>
     </footer>
   );

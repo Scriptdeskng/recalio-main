@@ -14,17 +14,21 @@ interface SubscriptionRequiredModalProps {
   open: boolean;
   onClose: () => void;
   clientAction?: ClientAction;
+  msisdn?: string;
 }
 
 export default function SubscriptionRequiredModal({
   open,
   onClose,
   clientAction,
+  msisdn,
 }: SubscriptionRequiredModalProps) {
   const handleSubscribe = () => {
-    if (clientAction?.redirection_url) {
-      window.location.href = clientAction.redirection_url;
-    }
+    // Redirect to subscribe page with phone number prefilled
+    const url = msisdn 
+      ? `/subscribe?phone=${encodeURIComponent(msisdn)}`
+      : "/subscribe";
+    window.location.href = url;
   };
 
   return (
