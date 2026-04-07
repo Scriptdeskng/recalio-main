@@ -78,9 +78,11 @@ export default function SubscribePage() {
     document.documentElement.classList.add("allow-scroll");
     
     // Prefill phone number from URL params if present
-    const phoneParam = searchParams.get("phone");
-    if (phoneParam) {
-      setPhone(phoneParam);
+    if (searchParams) {
+      const phoneParam = searchParams.get("phone");
+      if (phoneParam) {
+        setPhone(phoneParam);
+      }
     }
     
     // Load Paystack inline script
