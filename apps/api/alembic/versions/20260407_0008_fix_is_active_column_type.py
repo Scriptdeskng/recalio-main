@@ -27,11 +27,23 @@ def upgrade():
         END
     """)
     
+    # Drop the existing default before type conversion
+    op.execute("""
+        ALTER TABLE subscription_plans 
+        ALTER COLUMN is_active DROP DEFAULT
+    """)
+    
     # Now alter the column type to boolean
     op.execute("""
         ALTER TABLE subscription_plans 
         ALTER COLUMN is_active TYPE BOOLEAN 
         USING CASE WHEN is_active = 0 THEN FALSE ELSE TRUE END
+    """)
+    
+    # Set the new boolean default
+    op.execute("""
+        ALTER TABLE subscription_plans 
+        ALTER COLUMN is_active SET DEFAULT TRUE
     """)
 
 

@@ -1,4 +1,5 @@
 import sys
+import os
 from pathlib import Path
 from logging.config import fileConfig
 from sqlalchemy import engine_from_config, pool
@@ -11,6 +12,14 @@ from app.db.base import Base
 from app.db.models import *  # noqa
 
 config = context.config
+
+# Override sqlalchemy.url with DATABASE_URL from environment if present
+database_url = os.getenv("DATABASE_URL")
+if database_url:
+    # Alembic uses psycopg (sync), so convert asyncpg URL if needed
+    if "asyncpg" in database_url:
+        database_url = database_url.replace("+asyncpg", "").replace("postgresql://", "postgresql+psycopg://")
+    config.set_main_option("sqlalchemy.url", database_url)
 
 # Configure logging only if the ini file has logging configuration
 if config.config_file_name is not None and config.get_section("loggers") is not None:

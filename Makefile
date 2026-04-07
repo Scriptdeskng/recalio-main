@@ -1,7 +1,7 @@
 .PHONY: help build up down restart logs shell test clean db-migrate db-reset db-shell \
         api-build api-up api-logs api-shell api-test api-restart \
         web-build web-up web-logs web-shell web-test web-restart \
-        db-up db-down prod-build prod-up prod-down prod-logs
+        db-up db-down prod-build prod-up prod-down prod-logs prod-migrate prod-migrate-create prod-migrate-history prod-db-shell
 
 # Default target
 help: ## Show this help message
@@ -194,6 +194,22 @@ prod-scale-api: ## Scale API service (use N=3 for 3 instances)
 		exit 1; \
 	fi
 	docker compose -f docker-compose.prod.yml up -d --scale api=$(N)
+
+prod-migrate: ## Run database migrations in production
+	docker compose -f docker-compose.prod.yml exec api alembic upgrade head
+
+prod-migrate-create: ## Create new migration in production (use NAME=migration_name)
+	@if [ -z "$(NAME)" ]; then \
+		echo "Error: Please provide NAME=migration_name"; \
+		exit 1; \
+	fi
+	docker compose -f docker-compose.prod.yml exec api alembic revision --autogenerate -m "$(NAME)"
+
+prod-migrate-history: ## Show migration history in production
+	docker compose -f docker-compose.prod.yml exec api alembic history
+
+prod-db-shell: ## Open PostgreSQL shell in production
+	docker compose -f docker-compose.prod.yml exec db psql -U postgres -d recallio
 
 # ====================
 # Cleanup Commands
