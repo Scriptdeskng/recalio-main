@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Brain, Lightbulb, Trophy, ArrowRight } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -65,7 +65,7 @@ const SKUS: Array<{
   },
 ];
 
-export default function SubscribePage() {
+function SubscribePageContent() {
   const [state, setState] = useState<PaymentState>("idle");
   const [sku, setSku] = useState<SKU | null>(null);
   const [phone, setPhone] = useState("");
@@ -534,5 +534,13 @@ export default function SubscribePage() {
         </AnimatePresence>
       </main>
     </div>
+  );
+}
+
+export default function SubscribePage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-white flex items-center justify-center">Loading...</div>}>
+      <SubscribePageContent />
+    </Suspense>
   );
 }
