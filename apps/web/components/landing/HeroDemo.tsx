@@ -61,7 +61,7 @@ export default function HeroDemo() {
         {/* Content */}
         <div className="px-3.5 py-4 flex flex-col">
           <p className="text-[10px] text-[#7a8599] font-medium mb-2">
-            Your notes
+            Enter any topic
           </p>
           <div className="bg-white/[0.04] border border-white/[0.07] rounded-lg px-3 py-2.5 mb-3 h-[52px] flex items-start">
             <p className="text-[11px] md:text-[12px] text-white/70 leading-relaxed">
@@ -69,7 +69,7 @@ export default function HeroDemo() {
               <span className="inline-block w-[2px] h-[13px] bg-[#2BD4BD] ml-[1px] align-middle animate-pulse" />
             </p>
           </div>
-          <div className="flex items-center justify-center gap-1.5 w-full py-2 rounded-lg bg-[#2BD4BD] text-[#0b0d12] text-[11px] md:text-[12px] font-bold">
+          <div className="flex items-center justify-center gap-1.5 w-full py-2 rounded-lg bg-transparent border border-[#2BD4BD]/40 text-[#2BD4BD]/70 text-[11px] md:text-[12px] font-bold">
             Generate quiz <ArrowRight size={12} />
           </div>
         </div>

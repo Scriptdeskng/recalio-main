@@ -14,9 +14,9 @@ export default {
     },
     extend: {
       fontFamily: {
-        display: ["Sora", "sans-serif"],
-        body: ["DM Sans", "sans-serif"],
-        landing: ["Manrope", "DM Sans", "sans-serif"],
+        display: ["var(--font-sora)", "Sora", "sans-serif"],
+        body: ["var(--font-dm-sans)", "DM Sans", "sans-serif"],
+        landing: ["var(--font-manrope)", "Manrope", "DM Sans", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",

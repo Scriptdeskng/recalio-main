@@ -2,23 +2,37 @@
 
 import IndexPage from "@/pages/Index";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { isPlayerAuthenticated } from "@/lib/player-auth";
 
 export default function AppPage() {
   const router = useRouter();
+  const [isClient, setIsClient] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   
   useEffect(() => {
+    // Mark as client-side mounted
+    setIsClient(true);
+    
+    // Check authentication only on client-side
+    const authenticated = isPlayerAuthenticated();
+    setIsAuthenticated(authenticated);
+    
     // Redirect to landing page if not authenticated
-    if (!isPlayerAuthenticated()) {
+    if (!authenticated) {
       router.push("/");
     }
   }, [router]);
   
-  // Don't render the app if not authenticated
-  if (!isPlayerAuthenticated()) {
+  // During SSR or before client hydration, show nothing to avoid mismatch
+  if (!isClient) {
     return null;
+  }
+  
+  // After hydration, check if authenticated
+  if (!isAuthenticated) {
+    return null; // Will redirect via useEffect
   }
   
   return (

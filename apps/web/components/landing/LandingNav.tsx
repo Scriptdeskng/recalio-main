@@ -27,12 +27,20 @@ export default function LandingNav() {
             className="h-6"
           />
         </a>
-        <a
-          href="/main-app"
-          className="text-[11px] font-semibold font-display px-4 py-1.5 rounded-full bg-white/[0.08] text-white/80 hover:bg-white/[0.12] hover:text-white transition-all border border-white/[0.06]"
-        >
-          Subscribe
-        </a>
+        <div className="flex items-center gap-3">
+          <a
+            href="/signin"
+            className="text-[11px] font-medium font-display text-white/50 hover:text-white/80 transition-colors"
+          >
+            Sign in
+          </a>
+          <a
+            href="/subscribe"
+            className="text-[11px] font-semibold font-display px-4 py-1.5 rounded-full bg-white/[0.08] text-white/80 hover:bg-white/[0.12] hover:text-white transition-all border border-white/[0.06]"
+          >
+            Get started
+          </a>
+        </div>
       </div>
     </nav>
   );

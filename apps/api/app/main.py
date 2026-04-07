@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
-from app.api.routes import health, quizzes, sessions, challenges, auth, players
+from app.api.routes import health, quizzes, sessions, challenges, auth, players, subscriptions, webhooks
 import logging
 
 # Configure logging
@@ -25,3 +25,5 @@ app.include_router(sessions.router)
 app.include_router(challenges.router)
 app.include_router(auth.router)
 app.include_router(players.router)
+app.include_router(subscriptions.router)
+app.include_router(webhooks.router)

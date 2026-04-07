@@ -9,6 +9,14 @@ class Settings(BaseSettings):
     ANTHROPIC_API_KEY: str = "replace_me"
     ANTHROPIC_MODEL: str = "claude-haiku-4-5-20251001"
     CORS_ORIGINS: str = "http://localhost:3000"
+    
+    # Payment Settings
+    PAYSTACK_SECRET_KEY: str = ""
+    PAYSTACK_PUBLIC_KEY: str = ""
+    
+    # IntelliHQ Settings
+    INTELLIHQ_API_KEY: str = ""
+    INTELLIHQ_SERVICE_ID: int = 1
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
