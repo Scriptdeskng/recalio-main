@@ -1,7 +1,7 @@
 .PHONY: help build up down restart logs shell test clean db-migrate db-reset db-shell \
         api-build api-up api-logs api-shell api-test api-restart \
         web-build web-up web-logs web-shell web-test web-restart \
-        db-up db-down prod-build prod-up prod-down prod-logs prod-migrate prod-migrate-create prod-migrate-history prod-db-shell
+        db-up db-down prod-build prod-up prod-down prod-logs prod-migrate prod-migrate-create prod-migrate-history prod-db-shell prod-reset
 
 # Default target
 help: ## Show this help message
@@ -210,6 +210,21 @@ prod-migrate-history: ## Show migration history in production
 
 prod-db-shell: ## Open PostgreSQL shell in production
 	docker compose -f docker-compose.prod.yml exec db psql -U postgres -d recallio
+
+prod-reset: ## Reset production database (WARNING: deletes all data!)
+	@echo "⚠️  WARNING: This will delete ALL production data!"
+	@echo "Press Ctrl+C to cancel, or wait 5 seconds to continue..."
+	@sleep 5
+	docker compose -f docker-compose.prod.yml down
+	docker volume rm recalio_postgres_data_prod || true
+	docker compose -f docker-compose.prod.yml up -d db
+	@echo "Waiting for database to initialize..."
+	@sleep 20
+	docker compose -f docker-compose.prod.yml up -d api
+	@sleep 10
+	$(MAKE) prod-migrate
+	docker compose -f docker-compose.prod.yml up -d web
+	@echo "✅ Production database reset complete"
 
 # ====================
 # Cleanup Commands

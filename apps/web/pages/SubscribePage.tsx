@@ -215,6 +215,7 @@ function SubscribePageContent() {
         amount: selectedPlan.price * 100, // Convert to kobo
         currency: "NGN",
         ref: paymentResponse.reference,
+        channels: ['card'], // Only allow card payments
         callback: async (response: { reference: string }) => {
           try {
             // Verify payment with backend
