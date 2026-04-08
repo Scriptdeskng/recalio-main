@@ -95,7 +95,7 @@ class SubscriptionService:
         if response.success and response.reference:
             # Update subscription with Paystack reference
             subscription.payment_reference = response.reference
-            subscription.payment_metadata = meta
+            subscription.metadata = meta
             await db.commit()
             logger.info(f"Created pending subscription {subscription.id} for player {player.id}, reference: {response.reference}")
         else:
@@ -150,9 +150,9 @@ class SubscriptionService:
             subscription.next_billing_at = subscription.ends_at - timedelta(days=1)
             
             # Preserve existing metadata and add transaction info
-            if not subscription.payment_metadata:
-                subscription.payment_metadata = {}
-            subscription.payment_metadata.update({
+            if not subscription.metadata:
+                subscription.metadata = {}
+            subscription.metadata.update({
                 "activated_at": datetime.now(timezone.utc).isoformat(),
                 "initial_transaction_ref": transaction.reference,
                 "payment_channel": transaction.channel

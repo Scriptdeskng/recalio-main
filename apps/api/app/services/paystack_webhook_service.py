@@ -108,7 +108,7 @@ class PaystackWebhookService:
                 raise ValueError(f"Subscription not found: {subscription_id}")
             
             # Check for duplicate processing (idempotency)
-            if subscription.payment_metadata and subscription.payment_metadata.get("last_charge_reference") == reference:
+            if subscription.metadata and subscription.metadata.get("last_charge_reference") == reference:
                 logger.info(f"Reference {reference} already processed for subscription {subscription_id}, skipping")
                 return subscription
             
@@ -174,15 +174,15 @@ class PaystackWebhookService:
             subscription.updated_at = now
             
             # Update metadata with latest charge
-            if not subscription.payment_metadata:
-                subscription.payment_metadata = {}
-            subscription.payment_metadata["last_charge_reference"] = reference
-            subscription.payment_metadata["last_charge_date"] = now.isoformat()
-            subscription.payment_metadata["last_charge_amount"] = data.amount
-            subscription.payment_metadata["last_renewal_success"] = now.isoformat()
-            subscription.payment_metadata["renewal_count"] = subscription.payment_metadata.get("renewal_count", 0) + 1
-            subscription.payment_metadata.pop("retry_count", None)  # Clear any retry count
-            subscription.payment_metadata.pop("grace_reason", None)  # Clear grace reason if any
+            if not subscription.metadata:
+                subscription.metadata = {}
+            subscription.metadata["last_charge_reference"] = reference
+            subscription.metadata["last_charge_date"] = now.isoformat()
+            subscription.metadata["last_charge_amount"] = data.amount
+            subscription.metadata["last_renewal_success"] = now.isoformat()
+            subscription.metadata["renewal_count"] = subscription.metadata.get("renewal_count", 0) + 1
+            subscription.metadata.pop("retry_count", None)  # Clear any retry count
+            subscription.metadata.pop("grace_reason", None)  # Clear grace reason if any
             
             # Update player subscription status
             player = await PlayerRepository.get_by_id(db, subscription.player_id)
@@ -253,7 +253,7 @@ class PaystackWebhookService:
                 raise ValueError(f"Subscription not found: {subscription_id}")
             
             # Check for duplicate processing
-            if subscription.payment_metadata and subscription.payment_metadata.get("last_failed_charge_reference") == reference:
+            if subscription.metadata and subscription.metadata.get("last_failed_charge_reference") == reference:
                 logger.info(f"Failed payment {reference} already processed, skipping")
                 return subscription
             
@@ -263,11 +263,11 @@ class PaystackWebhookService:
                 subscription.updated_at = datetime.now(timezone.utc)
                 
                 # Update metadata with failure info
-                if not subscription.payment_metadata:
-                    subscription.payment_metadata = {}
-                subscription.payment_metadata["last_failed_charge_date"] = datetime.now(timezone.utc).isoformat()
-                subscription.payment_metadata["last_failed_charge_reference"] = reference
-                subscription.payment_metadata["failure_count"] = subscription.payment_metadata.get("failure_count", 0) + 1
+                if not subscription.metadata:
+                    subscription.metadata = {}
+                subscription.metadata["last_failed_charge_date"] = datetime.now(timezone.utc).isoformat()
+                subscription.metadata["last_failed_charge_reference"] = reference
+                subscription.metadata["failure_count"] = subscription.metadata.get("failure_count", 0) + 1
                 
                 # Update player - keep has_any_subscription but set has_active_subscription to False
                 player = await PlayerRepository.get_by_id(db, subscription.player_id)
@@ -280,12 +280,12 @@ class PaystackWebhookService:
                         "status": SubscriptionStatus.GRACE.value,
                         "ends_at": subscription.ends_at.isoformat(),
                         "payment_failed": True,
-                        "failure_count": subscription.payment_metadata["failure_count"]
+                        "failure_count": subscription.metadata["failure_count"]
                     }
                 
                 await db.commit()
                 await db.refresh(subscription)
-                logger.info(f"Moved subscription {subscription.id} to grace period (failure #{subscription.payment_metadata['failure_count']})")
+                logger.info(f"Moved subscription {subscription.id} to grace period (failure #{subscription.metadata['failure_count']})")
             
             return subscription
             

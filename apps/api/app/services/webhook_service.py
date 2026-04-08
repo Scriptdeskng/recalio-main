@@ -87,7 +87,7 @@ class WebhookService:
             
             if subscription:
                 # Check for duplicate processing (idempotency)
-                if subscription.payment_metadata and subscription.payment_metadata.get("last_renewal_ref") == telco_ref:
+                if subscription.metadata and subscription.metadata.get("last_renewal_ref") == telco_ref:
                     logger.info(f"Renewal {telco_ref} already processed, skipping")
                     return subscription
                 
@@ -103,10 +103,10 @@ class WebhookService:
                     subscription.updated_at = datetime.now(timezone.utc)
                     
                     # Update metadata
-                    if not subscription.payment_metadata:
-                        subscription.payment_metadata = {}
-                    subscription.payment_metadata["last_renewal_ref"] = telco_ref
-                    subscription.payment_metadata["last_renewal_date"] = datetime.now(timezone.utc).isoformat()
+                    if not subscription.metadata:
+                        subscription.metadata = {}
+                    subscription.metadata["last_renewal_ref"] = telco_ref
+                    subscription.metadata["last_renewal_date"] = datetime.now(timezone.utc).isoformat()
                     
                     # Update player subscription data
                     player.has_any_subscription = True
@@ -283,7 +283,7 @@ class WebhookService:
             
             # Check for duplicate processing
             if subscription.status == SubscriptionStatus.CANCELLED:
-                if subscription.payment_metadata and subscription.payment_metadata.get("cancellation_ref") == telco_ref:
+                if subscription.metadata and subscription.metadata.get("cancellation_ref") == telco_ref:
                     logger.info(f"Cancellation {telco_ref} already processed, skipping")
                     return subscription
             
@@ -293,10 +293,10 @@ class WebhookService:
             subscription.updated_at = datetime.now(timezone.utc)
             
             # Update metadata
-            if not subscription.payment_metadata:
-                subscription.payment_metadata = {}
-            subscription.payment_metadata["cancellation_ref"] = telco_ref
-            subscription.payment_metadata["cancelled_at"] = datetime.now(timezone.utc).isoformat()
+            if not subscription.metadata:
+                subscription.metadata = {}
+            subscription.metadata["cancellation_ref"] = telco_ref
+            subscription.metadata["cancelled_at"] = datetime.now(timezone.utc).isoformat()
             
             # Update player subscription status
             player.has_any_subscription = True  # Keep history

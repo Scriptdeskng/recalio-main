@@ -46,7 +46,7 @@ class Subscription(Base):
     auto_renew: Mapped[bool] = mapped_column(Boolean, default=True)
     
     # Metadata
-    payment_metadata: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    metadata: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now, onupdate=utc_now)
