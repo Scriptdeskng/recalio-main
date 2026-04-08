@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.api.routes import health, quizzes, sessions, challenges, auth, players, subscriptions, webhooks
-from app.db.session import get_db
+from app.core.database import get_db
 import logging
 
 # Configure logging
