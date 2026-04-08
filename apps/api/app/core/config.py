@@ -1,11 +1,19 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import field_validator, ValidationError
 import sys
+import os
 
 class Settings(BaseSettings):
     APP_NAME: str = "Recallio API"
-    ENV: str = "development"
-    DATABASE_URL: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/recallio"
+    ENV: str = "production"
+    
+    # Database - hardcoded for production reliability
+    # Override with DATABASE_URL env var if needed
+    DATABASE_URL: str = os.getenv(
+        "DATABASE_URL", 
+        "postgresql+asyncpg://postgres:postgres@db:5432/recallio"
+    )
+    
     ANTHROPIC_API_KEY: str = "replace_me"
     ANTHROPIC_MODEL: str = "claude-haiku-4-5-20251001"
     CORS_ORIGINS: str = "http://localhost:3000"

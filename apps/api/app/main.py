@@ -19,19 +19,40 @@ app = FastAPI(title=settings.APP_NAME)
 async def startup_event():
     """Check database connection on startup"""
     try:
+        logger.info("=" * 50)
+        logger.info("🚀 Starting Recallio API")
+        logger.info(f"Environment: {settings.ENV}")
+        
+        # Show database connection details (hide password)
+        db_url = settings.DATABASE_URL
+        if "@" in db_url:
+            parts = db_url.split("@")
+            masked_url = parts[0].split(":")[:-1]  # Remove password
+            masked_url.append("****@" + parts[1])
+            logger.info(f"Database: {':'.join(masked_url)}")
+        
         logger.info("Checking database connection...")
         async for db in get_db():
             # Try a simple query
             from sqlalchemy import text
-            result = await db.execute(text("SELECT 1"))
-            logger.info("✅ Database connection successful!")
+            result = await db.execute(text("SELECT version()"))
+            version = result.scalar()
+            logger.info(f"✅ Database connection successful!")
+            logger.info(f"   PostgreSQL: {version}")
             break
+        logger.info("=" * 50)
     except Exception as e:
+        logger.error("=" * 50)
         logger.error(f"❌ Database connection failed: {str(e)}")
-        logger.error("Please check:")
-        logger.error("1. DATABASE_URL environment variable")
-        logger.error("2. Database credentials match")
-        logger.error("3. Database server is running")
+        logger.error("")
+        logger.error("Troubleshooting steps:")
+        logger.error("1. Check DATABASE_URL in environment")
+        logger.error("2. Verify database credentials match")
+        logger.error("3. Ensure database container is running")
+        logger.error("4. Check network connectivity to database")
+        logger.error("")
+        logger.error(f"Current DATABASE_URL pattern: {settings.DATABASE_URL.split('@')[1] if '@' in settings.DATABASE_URL else 'invalid'}")
+        logger.error("=" * 50)
         raise
 
 app.add_middleware(
