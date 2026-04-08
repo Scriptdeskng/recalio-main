@@ -160,11 +160,11 @@ class RecurringChargeService:
             
             # The webhook will handle updating the subscription
             # We just mark that we attempted the charge
-            if not subscription.metadata:
-                subscription.metadata = {}
-            subscription.metadata["last_renewal_attempt"] = datetime.now(timezone.utc).isoformat()
-            subscription.metadata["last_renewal_reference"] = transaction.reference
-            subscription.metadata.pop("retry_count", None)  # Clear retry count on success
+            if not subscription.payment_data:
+                subscription.payment_data = {}
+            subscription.payment_data["last_renewal_attempt"] = datetime.now(timezone.utc).isoformat()
+            subscription.payment_data["last_renewal_reference"] = transaction.reference
+            subscription.payment_data.pop("retry_count", None)  # Clear retry count on success
             
             await db.commit()
             
@@ -181,14 +181,14 @@ class RecurringChargeService:
             logger.error(f"Failed to charge subscription {subscription.id}: {error_message}")
             
             # Update metadata with failure
-            if not subscription.metadata:
-                subscription.metadata = {}
+            if not subscription.payment_data:
+                subscription.payment_data = {}
             
             # Track retry attempts
-            retry_count = subscription.metadata.get("retry_count", 0) + 1
-            subscription.metadata["retry_count"] = retry_count
-            subscription.metadata["last_renewal_attempt"] = datetime.now(timezone.utc).isoformat()
-            subscription.metadata["last_renewal_error"] = error_message
+            retry_count = subscription.payment_data.get("retry_count", 0) + 1
+            subscription.payment_data["retry_count"] = retry_count
+            subscription.payment_data["last_renewal_attempt"] = datetime.now(timezone.utc).isoformat()
+            subscription.payment_data["last_renewal_error"] = error_message
             
             # Check if authorization code is invalid/expired
             if "authorization" in error_message.lower() or "invalid" in error_message.lower():
@@ -196,12 +196,12 @@ class RecurringChargeService:
                 subscription.authorization_code = None  # Clear invalid code
                 subscription.auto_renew = False  # Stop auto-renewal
                 subscription.status = SubscriptionStatus.SUSPENDED
-                subscription.metadata["suspension_reason"] = "Invalid authorization code"
+                subscription.payment_data["suspension_reason"] = "Invalid authorization code"
             elif retry_count >= 3:
                 # After 3 failed attempts, move to grace period
                 logger.warning(f"Subscription {subscription.id} failed {retry_count} times, moving to GRACE")
                 subscription.status = SubscriptionStatus.GRACE
-                subscription.metadata["grace_reason"] = f"Payment failed {retry_count} times"
+                subscription.payment_data["grace_reason"] = f"Payment failed {retry_count} times"
             else:
                 # Keep active but log the failure - will retry next run
                 logger.info(f"Subscription {subscription.id} failed (attempt {retry_count}/3), will retry")

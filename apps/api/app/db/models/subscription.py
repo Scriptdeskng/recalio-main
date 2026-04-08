@@ -45,8 +45,8 @@ class Subscription(Base):
     # Auto-renewal
     auto_renew: Mapped[bool] = mapped_column(Boolean, default=True)
     
-    # Metadata
-    metadata: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    # Payment metadata (mapped to 'metadata' column in DB, but 'metadata' is reserved in SQLAlchemy)
+    payment_data: Mapped[dict | None] = mapped_column("metadata", JSON, nullable=True)
     
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now, onupdate=utc_now)
