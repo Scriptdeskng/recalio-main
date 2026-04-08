@@ -132,16 +132,18 @@ function SubscribePageContent() {
   };
 
   const handleMTN = async () => {
-    if (!sku) return;
+    if (!sku || !phone) {
+      toast.error("Please enter your MTN phone number");
+      return;
+    }
     
-    // For MTN, we need phone number first
-    const msisdn = prompt("Enter your MTN phone number (e.g., 08012345678):");
-    if (!msisdn) return;
+    setLoading(true);
     
-    const cleanedPhone = msisdn.replace(/\s+/g, "");
+    const cleanedPhone = phone.replace(/\s+/g, "");
     
     // Check if user already has active subscription
     if (await checkExistingSubscription(cleanedPhone)) {
+      setLoading(false);
       return; // User already has subscription, redirected to main app
     }
     
@@ -361,7 +363,7 @@ function SubscribePageContent() {
               </a>
             </motion.div>
           ) : state === "mtn" ? (
-            // Step 2a: Airtime flow - select plan and confirm
+            // Step 2a: Airtime flow - select plan and enter phone number
             <motion.div
               key="mtn"
               initial={{ opacity: 0, y: 10 }}
@@ -374,6 +376,7 @@ function SubscribePageContent() {
                 onClick={() => {
                   setState("idle");
                   setSku(null);
+                  setPhone("");
                 }}
                 className="text-[11px] text-[#5a6478] hover:text-white/70 transition-colors font-medium"
               >
@@ -411,12 +414,28 @@ function SubscribePageContent() {
                 </div>
               </div>
 
+              <div>
+                <label className="block text-[10px] font-medium text-[#5a6478] mb-1">
+                  Your MTN phone number
+                </label>
+                <input
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="08012345678"
+                  className="w-full rounded-xl bg-[#14171f] border border-white/[0.06] px-3.5 py-2.5 text-[13px] text-white placeholder:text-[#3a4255] focus:outline-none focus:border-[#2BD4BD]/30 transition-colors"
+                />
+                <p className="text-[9px] text-[#3a4255] mt-1">
+                  Airtime will be deducted from this number
+                </p>
+              </div>
+
               <button
                 onClick={handleMTN}
-                disabled={!sku}
+                disabled={!sku || !phone || loading}
                 className="w-full font-display font-bold text-[13px] md:text-[14px] px-6 py-3.5 rounded-full bg-[#2BD4BD] text-[#0b0d12] hover:bg-[#24BFA8] transition-all shadow-[0_4px_24px_-4px_rgba(43,212,189,0.3)] disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-1.5"
               >
-                {sku ? `Pay ₦${selectedSku!.price} with airtime` : "Select a plan"} <ArrowRight size={15} />
+                {loading ? "Processing..." : sku ? `Pay ₦${selectedSku!.price} with airtime` : "Select a plan"} <ArrowRight size={15} />
               </button>
               
               <a
